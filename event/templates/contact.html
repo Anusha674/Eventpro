@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<div style="padding-top: 100px;"></div>
+<section class="section-padding">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Contact Us</h2>
+            <p class="section-subtitle">We'd love to hear from you</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="glass-card p-4 text-center mb-4">
+                    <i class="bi bi-geo-alt-fill" style="font-size: 2rem; color: var(--primary);"></i>
+                    <h5 class="mt-3 fw-bold">Our Location</h5>
+                    <p class="text-muted">SMVITM, Bantakal, Udupi</p>
+                </div>
+                <div class="glass-card p-4 text-center mb-4">
+                    <i class="bi bi-envelope-fill" style="font-size: 2rem; color: var(--accent);"></i>
+                    <h5 class="mt-3 fw-bold">Email Us</h5>
+                    <p class="text-muted">anusha.24cs016@sode-edu.in</p>
+                </div>
+                <div class="glass-card p-4 text-center">
+                    <i class="bi bi-phone-fill" style="font-size: 2rem; color: var(--success);"></i>
+                    <h5 class="mt-3 fw-bold">Call Us</h5>
+                    <p class="text-muted">+91 98765 43210<br>+91 91234 56780</p>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="glass-card p-5">
+                    <h4 class="fw-bold mb-4">Send us a Message</h4>
+                    <form>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Your Name</label>
+                                <input type="text" class="form-control form-control-custom" placeholder="Anusha Bhat">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Your Email</label>
+                                <input type="email" class="form-control form-control-custom" placeholder="anusha@example.com">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label-custom">Subject</label>
+                                <input type="text" class="form-control form-control-custom" placeholder="How can we help?">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label-custom">Message</label>
+                                <textarea class="form-control form-control-custom" rows="5" placeholder="Your message..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary-custom">
+                                    <i class="bi bi-send me-2"></i>Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
