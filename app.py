@@ -286,16 +286,18 @@ def booking_qr(booking_id):
         flash('Booking not found.', 'danger')
         return redirect(url_for('my_bookings'))
     booking = booking[0]
-    qr_base64 = generate_booking_qr(
-        booking_id, booking['Event_Name'],
-        session.get('customer_name', ''), str(booking.get('Date', ''))
-    )
-    return f'''<html><body style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f8fafc;flex-direction:column;font-family:Inter,sans-serif;">
-    <h2>Booking #{booking_id} - {booking["Event_Name"]}</h2>
-    <img src="data:image/png;base64,{qr_base64}" style="margin:20px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
-    <p>Scan this QR code at the event entrance</p>
-    <a href="{url_for("my_bookings")}" style="color:#4F46E5;">← Back to Bookings</a>
-    </body></html>'''
+    try:
+        qr_base64 = generate_booking_qr(
+            booking_id,
+            booking['Event_Name'],
+            session.get('customer_name', ''),
+            str(booking.get('Date', ''))
+        )
+    except Exception:
+        flash('Unable to generate QR code right now. Please try again.', 'danger')
+        return redirect(url_for('my_bookings'))
+
+    return render_template('customer/booking_qr.html', booking=booking, qr_base64=qr_base64)
 
 
 # ============================================
