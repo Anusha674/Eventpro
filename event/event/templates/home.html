@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container position-relative" style="z-index:2;">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="hero-title">Create <span>Unforgettable</span> Events With Us</h1>
+                <p class="hero-subtitle">From weddings to corporate summits, we bring your vision to life. Browse events, book seamlessly, and create memories that last forever.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('events') }}" class="btn btn-primary-custom btn-lg">
+                        <i class="bi bi-search me-2"></i>Browse Events
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-custom btn-lg" style="border-color: white; color: white;">
+                        <i class="bi bi-person-plus me-2"></i>Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="section-padding" style="margin-top: -60px; position: relative; z-index: 3;">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-icon" style="background: rgba(79,70,229,0.1); color: var(--primary);">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <div class="stat-number counter" data-target="{{ total_events }}">0</div>
+                    <div class="stat-label">Total Events</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-icon" style="background: rgba(5,150,105,0.1); color: var(--success);">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-number counter" data-target="{{ total_customers }}">0</div>
+                    <div class="stat-label">Happy Customers</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-icon" style="background: rgba(217,119,6,0.1); color: var(--warning);">
+                        <i class="bi bi-bookmark-check"></i>
+                    </div>
+                    <div class="stat-number counter" data-target="{{ total_bookings }}">0</div>
+                    <div class="stat-label">Bookings Made</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-icon" style="background: rgba(8,145,178,0.1); color: var(--info);">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <div class="stat-number counter" data-target="{{ total_venues }}">0</div>
+                    <div class="stat-label">Premium Venues</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Event Categories -->
+<section class="section-padding bg-white">
+    <div class="container">
+        <div class="text-center">
+            <h2 class="section-title">Event Categories</h2>
+            <p class="section-subtitle">Explore our wide range of event types</p>
+        </div>
+        <div class="row g-4">
+            {% for cat in [
+                {'icon': '💒', 'name': 'Wedding', 'desc': 'Dream wedding celebrations', 'color': '#FEE2E2'},
+                {'icon': '🏢', 'name': 'Corporate', 'desc': 'Professional business events', 'color': '#DBEAFE'},
+                {'icon': '🎵', 'name': 'Concert', 'desc': 'Live music experiences', 'color': '#E0E7FF'},
+                {'icon': '🎂', 'name': 'Birthday', 'desc': 'Memorable birthday parties', 'color': '#FCE7F3'},
+                {'icon': '🤝', 'name': 'Social', 'desc': 'Community gatherings', 'color': '#D1FAE5'},
+                {'icon': '🎉', 'name': 'Festival', 'desc': 'Grand festival events', 'color': '#FEF3C7'}
+            ] %}
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="category-card glass-card animate-on-scroll" style="background: {{ cat.color }};">
+                    <span class="category-icon">{{ cat.icon }}</span>
+                    <h5>{{ cat.name }}</h5>
+                    <small class="text-muted">{{ cat.desc }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Upcoming Events -->
+<section class="section-padding">
+    <div class="container">
+        <div class="text-center">
+            <h2 class="section-title">Upcoming Events</h2>
+            <p class="section-subtitle">Don't miss these amazing upcoming events</p>
+        </div>
+        <div class="row g-4">
+            {% for event in upcoming_events %}
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="event-card">
+                    <div class="card-img-wrapper">
+                        <img src="{{ event.Image or 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' }}" class="card-img-top" alt="{{ event.Event_Name }}">
+                        <span class="event-type-badge">{{ event.Type }}</span>
+                        <span class="event-price">₹{{ '{:,.0f}'.format(event.Price) }}</span>
+                    </div>
+                    <div class="p-3">
+                        <h5 class="fw-bold mb-2">{{ event.Event_Name }}</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-calendar me-1"></i>{{ event.Date }}
+                            <i class="bi bi-clock ms-2 me-1"></i>{{ event.Time }}
+                        </p>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-geo-alt me-1"></i>{{ event.Location }}
+                        </p>
+                        <a href="{{ url_for('event_detail', event_id=event.E_ID) }}" class="btn btn-primary-custom btn-sm w-100">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% if not upcoming_events %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-calendar-x" style="font-size: 3rem; color: var(--gray-300);"></i>
+                <p class="text-muted mt-3">No upcoming events at the moment.</p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('events') }}" class="btn btn-outline-custom">View All Events <i class="bi bi-arrow-right ms-2"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section-padding" style="background: linear-gradient(135deg, #4F46E5, #7C3AED);">
+    <div class="container text-center">
+        <h2 class="text-white mb-3" style="font-size: 2rem; font-weight: 800;">Ready to Create Your Event?</h2>
+        <p class="text-white-50 mb-4">Join thousands of happy customers who trust EventPro</p>
+        <a href="{{ url_for('register') }}" class="btn btn-lg" style="background: white; color: var(--primary); font-weight: 700; padding: 14px 40px; border-radius: 12px;">
+            Get Started Free <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+    </div>
+</section>
+{% endblock %}

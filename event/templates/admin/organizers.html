@@ -1,0 +1,54 @@
+{% set hide_navbar = true %}{% set hide_footer = true %}{% set active_page = 'organizers' %}
+{% extends "base.html" %}
+{% block title %}Manage Organizers{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    {% include "admin/_sidebar.html" %}
+    <div class="admin-main">
+        <div class="page-header">
+            <h2><i class="bi bi-person-badge me-2"></i>Manage Organizers</h2>
+            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-plus-lg me-1"></i>Add Organizer</button>
+        </div>
+        <div class="admin-table-container">
+            <div class="admin-table-header"><h5>All Organizers ({{ organizers|length }})</h5><input type="text" class="form-control form-control-custom admin-search" data-table="dataTable" placeholder="Search..." style="max-width:250px;"></div>
+            <div class="table-responsive">
+                <table class="table table-custom mb-0" id="dataTable">
+                    <thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Email</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for o in organizers %}
+                        <tr>
+                            <td>{{ o.O_ID }}</td><td><strong>{{ o.Name }}</strong></td><td>{{ o.Contact }}</td><td>{{ o.Email }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal" onclick="document.getElementById('editForm').action='/admin/organizers/edit/{{ o.O_ID }}';document.getElementById('e_name').value='{{ o.Name }}';document.getElementById('e_contact').value='{{ o.Contact }}';document.getElementById('e_email').value='{{ o.Email }}'"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="adminDelete('/admin/organizers/delete/{{ o.O_ID }}','{{ o.Name }}')"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Add Organizer</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <form method="POST" action="{{ url_for('admin_organizers') }}">
+        <div class="mb-3"><label class="form-label">Name</label><input name="name" class="form-control form-control-custom" required></div>
+        <div class="mb-3"><label class="form-label">Contact</label><input name="contact" class="form-control form-control-custom"></div>
+        <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control form-control-custom"></div>
+        <button class="btn btn-primary-custom">Add Organizer</button>
+    </form>
+</div></div></div></div>
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Edit Organizer</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <form method="POST" id="editForm">
+        <div class="mb-3"><label class="form-label">Name</label><input name="name" id="e_name" class="form-control form-control-custom" required></div>
+        <div class="mb-3"><label class="form-label">Contact</label><input name="contact" id="e_contact" class="form-control form-control-custom"></div>
+        <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" id="e_email" class="form-control form-control-custom"></div>
+        <button class="btn btn-primary-custom">Update</button>
+    </form>
+</div></div></div></div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/admin.js') }}"></script>{% endblock %}

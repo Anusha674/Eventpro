@@ -1,0 +1,69 @@
+{% set hide_navbar = true %}{% set hide_footer = true %}{% set active_page = 'staff' %}
+{% extends "base.html" %}
+{% block title %}Manage Staff{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    {% include "admin/_sidebar.html" %}
+    <div class="admin-main">
+        <div class="page-header">
+            <h2><i class="bi bi-people me-2"></i>Manage Staff</h2>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-custom" data-bs-toggle="modal" data-bs-target="#assignModal"><i class="bi bi-link me-1"></i>Assign to Event</button>
+                <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-plus-lg me-1"></i>Add Staff</button>
+            </div>
+        </div>
+        <div class="admin-table-container">
+            <div class="admin-table-header"><h5>All Staff ({{ staff|length }})</h5><input type="text" class="form-control form-control-custom admin-search" data-table="dataTable" placeholder="Search..." style="max-width:250px;"></div>
+            <div class="table-responsive">
+                <table class="table table-custom mb-0" id="dataTable">
+                    <thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Salary</th><th>Contact</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for s in staff %}
+                        <tr>
+                            <td>{{ s.S_ID }}</td><td><strong>{{ s.Name }}</strong></td><td>{{ s.Role }}</td><td>₹{{ '{:,.0f}'.format(s.Salary) }}</td><td>{{ s.Contact }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal" onclick="document.getElementById('editForm').action='/admin/staff/edit/{{ s.S_ID }}';document.getElementById('e_name').value='{{ s.Name }}';document.getElementById('e_role').value='{{ s.Role }}';document.getElementById('e_salary').value='{{ s.Salary }}';document.getElementById('e_contact').value='{{ s.Contact }}'"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="adminDelete('/admin/staff/delete/{{ s.S_ID }}','{{ s.Name }}')"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add -->
+<div class="modal fade" id="addModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Add Staff</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <form method="POST" action="{{ url_for('admin_staff') }}">
+        <input type="hidden" name="action" value="add">
+        <div class="mb-3"><label class="form-label">Name</label><input name="name" class="form-control form-control-custom" required></div>
+        <div class="mb-3"><label class="form-label">Role</label><input name="role" class="form-control form-control-custom"></div>
+        <div class="mb-3"><label class="form-label">Salary</label><input type="number" name="salary" class="form-control form-control-custom" step="0.01"></div>
+        <div class="mb-3"><label class="form-label">Contact</label><input name="contact" class="form-control form-control-custom"></div>
+        <button class="btn btn-primary-custom">Add Staff</button>
+    </form>
+</div></div></div></div>
+<!-- Edit -->
+<div class="modal fade" id="editModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Edit Staff</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <form method="POST" id="editForm">
+        <div class="mb-3"><label class="form-label">Name</label><input name="name" id="e_name" class="form-control form-control-custom" required></div>
+        <div class="mb-3"><label class="form-label">Role</label><input name="role" id="e_role" class="form-control form-control-custom"></div>
+        <div class="mb-3"><label class="form-label">Salary</label><input type="number" name="salary" id="e_salary" class="form-control form-control-custom" step="0.01"></div>
+        <div class="mb-3"><label class="form-label">Contact</label><input name="contact" id="e_contact" class="form-control form-control-custom"></div>
+        <button class="btn btn-primary-custom">Update</button>
+    </form>
+</div></div></div></div>
+<!-- Assign -->
+<div class="modal fade" id="assignModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Assign Staff to Event</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <form method="POST" action="{{ url_for('admin_staff') }}">
+        <input type="hidden" name="action" value="assign">
+        <div class="mb-3"><label class="form-label">Event</label><select name="e_id" class="form-select form-control-custom" required>{% for e in events %}<option value="{{ e.E_ID }}">{{ e.Event_Name }}</option>{% endfor %}</select></div>
+        <div class="mb-3"><label class="form-label">Staff Member</label><select name="s_id" class="form-select form-control-custom" required>{% for s in staff %}<option value="{{ s.S_ID }}">{{ s.Name }} ({{ s.Role }})</option>{% endfor %}</select></div>
+        <button class="btn btn-primary-custom">Assign</button>
+    </form>
+</div></div></div></div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/admin.js') }}"></script>{% endblock %}

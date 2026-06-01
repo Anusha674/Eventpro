@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div style="padding-top: 100px;"></div>
+<section class="section-padding">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">Explore Events</h2>
+            <p class="section-subtitle">Find the perfect event for you</p>
+        </div>
+
+        <!-- Search & Filters -->
+        <div class="glass-card p-4 mb-4">
+            <form method="GET" action="{{ url_for('events') }}" class="row g-3 align-items-end">
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label-custom">Search</label>
+                    <div class="search-box" style="max-width: none;">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" name="search" value="{{ request.args.get('search', '') }}" placeholder="Search events..." id="eventSearch">
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label-custom">Type</label>
+                    <select name="type" class="form-select form-control-custom">
+                        <option value="">All Types</option>
+                        {% for t in ['Wedding', 'Corporate', 'Concert', 'Birthday', 'Social', 'Festival'] %}
+                        <option value="{{ t }}" {{ 'selected' if request.args.get('type') == t }}>{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <label class="form-label-custom">From Date</label>
+                    <input type="date" name="date_from" class="form-control form-control-custom" value="{{ request.args.get('date_from', '') }}">
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <label class="form-label-custom">To Date</label>
+                    <input type="date" name="date_to" class="form-control form-control-custom" value="{{ request.args.get('date_to', '') }}">
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Event Cards -->
+        <div class="row g-4">
+            {% for event in events %}
+            <div class="col-lg-4 col-md-6 event-card-item animate-on-scroll" data-name="{{ event.Event_Name }}" data-type="{{ event.Type }}">
+                <div class="event-card">
+                    <div class="card-img-wrapper">
+                        <img src="{{ event.Image or 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' }}" class="card-img-top" alt="{{ event.Event_Name }}">
+                        <span class="event-type-badge">{{ event.Type }}</span>
+                        <span class="event-price">₹{{ '{:,.0f}'.format(event.Price) }}</span>
+                    </div>
+                    <div class="p-3">
+                        <h5 class="fw-bold mb-2">{{ event.Event_Name }}</h5>
+                        <p class="text-muted small mb-1">
+                            <i class="bi bi-calendar me-1"></i>{{ event.Date }}
+                            <i class="bi bi-clock ms-2 me-1"></i>{{ event.Time }}
+                        </p>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-geo-alt me-1"></i>{{ event.Location }}
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('event_detail', event_id=event.E_ID) }}" class="btn btn-outline-custom btn-sm flex-fill">Details</a>
+                            {% if session.get('customer_id') %}
+                            <a href="{{ url_for('book_event', event_id=event.E_ID) }}" class="btn btn-primary-custom btn-sm flex-fill">Book Now</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% if not events %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-calendar-x" style="font-size: 3rem; color: var(--gray-300);"></i>
+                <h4 class="mt-3 text-muted">No events found</h4>
+                <p class="text-muted">Try adjusting your search filters</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

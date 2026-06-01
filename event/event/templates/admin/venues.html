@@ -1,0 +1,55 @@
+{% set hide_navbar = true %}{% set hide_footer = true %}{% set active_page = 'venues' %}
+{% extends "base.html" %}
+{% block title %}Manage Venues{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    {% include "admin/_sidebar.html" %}
+    <div class="admin-main">
+        <div class="page-header">
+            <h2><i class="bi bi-building me-2"></i>Manage Venues</h2>
+            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-plus-lg me-1"></i>Add Venue</button>
+        </div>
+        <div class="admin-table-container">
+            <div class="admin-table-header"><h5>All Venues ({{ venues|length }})</h5><input type="text" class="form-control form-control-custom admin-search" data-table="dataTable" placeholder="Search..." style="max-width:250px;"></div>
+            <div class="table-responsive">
+                <table class="table table-custom mb-0" id="dataTable">
+                    <thead><tr><th>ID</th><th>Name</th><th>Address</th><th>Capacity</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for v in venues %}
+                        <tr>
+                            <td>{{ v.V_ID }}</td><td><strong>{{ v.Name }}</strong></td><td>{{ v.Address }}</td><td>{{ v.Capacity }}</td>
+                            <td><span class="badge-{{ 'confirmed' if v.Availability == 'Available' else 'pending' }}">{{ v.Availability }}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal" onclick="document.getElementById('editForm').action='/admin/venues/edit/{{ v.V_ID }}';document.getElementById('e_name').value='{{ v.Name }}';document.getElementById('e_address').value='{{ v.Address }}';document.getElementById('e_capacity').value='{{ v.Capacity }}';document.getElementById('e_avail').value='{{ v.Availability }}'"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="adminDelete('/admin/venues/delete/{{ v.V_ID }}','{{ v.Name }}')"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Add Venue</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <form method="POST" action="{{ url_for('admin_venues') }}">
+        <div class="mb-3"><label class="form-label">Name</label><input name="name" class="form-control form-control-custom" required></div>
+        <div class="mb-3"><label class="form-label">Address</label><input name="address" class="form-control form-control-custom"></div>
+        <div class="mb-3"><label class="form-label">Capacity</label><input type="number" name="capacity" class="form-control form-control-custom"></div>
+        <div class="mb-3"><label class="form-label">Availability</label><select name="availability" class="form-select form-control-custom"><option>Available</option><option>Booked</option><option>Maintenance</option></select></div>
+        <button class="btn btn-primary-custom">Add Venue</button>
+    </form>
+</div></div></div></div>
+<div class="modal fade" id="editModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Edit Venue</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <form method="POST" id="editForm">
+        <div class="mb-3"><label class="form-label">Name</label><input name="name" id="e_name" class="form-control form-control-custom" required></div>
+        <div class="mb-3"><label class="form-label">Address</label><input name="address" id="e_address" class="form-control form-control-custom"></div>
+        <div class="mb-3"><label class="form-label">Capacity</label><input type="number" name="capacity" id="e_capacity" class="form-control form-control-custom"></div>
+        <div class="mb-3"><label class="form-label">Availability</label><select name="availability" id="e_avail" class="form-select form-control-custom"><option>Available</option><option>Booked</option><option>Maintenance</option></select></div>
+        <button class="btn btn-primary-custom">Update</button>
+    </form>
+</div></div></div></div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/admin.js') }}"></script>{% endblock %}
