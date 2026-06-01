@@ -1,0 +1,133 @@
+{% set hide_navbar = true %}
+{% set hide_footer = true %}
+{% set active_page = 'events' %}
+{% extends "base.html" %}
+{% block title %}Manage Events{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    {% include "admin/_sidebar.html" %}
+    <div class="admin-main">
+        <div class="page-header">
+            <h2><i class="bi bi-calendar-event me-2"></i>Manage Events</h2>
+            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                <i class="bi bi-plus-lg me-1"></i>Add Event
+            </button>
+        </div>
+
+        <div class="admin-table-container">
+            <div class="admin-table-header">
+                <h5>All Events ({{ events|length }})</h5>
+                <input type="text" class="form-control form-control-custom admin-search" data-table="eventsTable" placeholder="Search..." style="max-width: 250px;">
+            </div>
+            <div class="table-responsive">
+                <table class="table table-custom mb-0" id="eventsTable">
+                    <thead><tr><th>ID</th><th>Event Name</th><th>Date</th><th>Type</th><th>Price</th><th>Venue</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for e in events %}
+                        <tr>
+                            <td>{{ e.E_ID }}</td>
+                            <td><strong>{{ e.Event_Name }}</strong></td>
+                            <td>{{ e.Date }}</td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ e.Type }}</span></td>
+                            <td>₹{{ '{:,.0f}'.format(e.Price) }}</td>
+                            <td>{{ e.Venue_Name or 'N/A' }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="editEvent({{ e|tojson }})" data-bs-toggle="modal" data-bs-target="#editEventModal"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="adminDelete('/admin/events/delete/{{ e.E_ID }}', '{{ e.Event_Name }}')"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Add New Event</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('admin_events') }}">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label">Event Name</label><input name="event_name" class="form-control form-control-custom" required></div>
+                        <div class="col-md-3"><label class="form-label">Date</label><input type="date" name="date" class="form-control form-control-custom" required></div>
+                        <div class="col-md-3"><label class="form-label">Time</label><input type="time" name="time" class="form-control form-control-custom" required></div>
+                        <div class="col-md-6"><label class="form-label">Location</label><input name="location" class="form-control form-control-custom"></div>
+                        <div class="col-md-3"><label class="form-label">Type</label>
+                            <select name="type" class="form-select form-control-custom">
+                                {% for t in ['Wedding','Corporate','Concert','Birthday','Social','Festival'] %}<option>{{ t }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3"><label class="form-label">Price (₹)</label><input type="number" name="price" class="form-control form-control-custom" step="0.01"></div>
+                        <div class="col-md-6"><label class="form-label">Organizer</label>
+                            <select name="o_id" class="form-select form-control-custom"><option value="">Select</option>{% for o in organizers %}<option value="{{ o.O_ID }}">{{ o.Name }}</option>{% endfor %}</select>
+                        </div>
+                        <div class="col-md-6"><label class="form-label">Venue</label>
+                            <select name="v_id" class="form-select form-control-custom"><option value="">Select</option>{% for v in venues %}<option value="{{ v.V_ID }}">{{ v.Name }}</option>{% endfor %}</select>
+                        </div>
+                        <div class="col-12"><label class="form-label">Description</label><textarea name="description" class="form-control form-control-custom" rows="3"></textarea></div>
+                        <div class="col-12"><label class="form-label">Image URL</label><input name="image" class="form-control form-control-custom" placeholder="https://..."></div>
+                        <div class="col-12"><button type="submit" class="btn btn-primary-custom">Create Event</button></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Edit Event</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <form method="POST" id="editEventForm">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label">Event Name</label><input name="event_name" id="edit_event_name" class="form-control form-control-custom" required></div>
+                        <div class="col-md-3"><label class="form-label">Date</label><input type="date" name="date" id="edit_date" class="form-control form-control-custom" required></div>
+                        <div class="col-md-3"><label class="form-label">Time</label><input type="time" name="time" id="edit_time" class="form-control form-control-custom" required></div>
+                        <div class="col-md-6"><label class="form-label">Location</label><input name="location" id="edit_location" class="form-control form-control-custom"></div>
+                        <div class="col-md-3"><label class="form-label">Type</label>
+                            <select name="type" id="edit_type" class="form-select form-control-custom">
+                                {% for t in ['Wedding','Corporate','Concert','Birthday','Social','Festival'] %}<option>{{ t }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3"><label class="form-label">Price (₹)</label><input type="number" name="price" id="edit_price" class="form-control form-control-custom" step="0.01"></div>
+                        <div class="col-md-6"><label class="form-label">Organizer</label>
+                            <select name="o_id" id="edit_o_id" class="form-select form-control-custom"><option value="">Select</option>{% for o in organizers %}<option value="{{ o.O_ID }}">{{ o.Name }}</option>{% endfor %}</select>
+                        </div>
+                        <div class="col-md-6"><label class="form-label">Venue</label>
+                            <select name="v_id" id="edit_v_id" class="form-select form-control-custom"><option value="">Select</option>{% for v in venues %}<option value="{{ v.V_ID }}">{{ v.Name }}</option>{% endfor %}</select>
+                        </div>
+                        <div class="col-12"><label class="form-label">Description</label><textarea name="description" id="edit_description" class="form-control form-control-custom" rows="3"></textarea></div>
+                        <div class="col-12"><button type="submit" class="btn btn-primary-custom">Update Event</button></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<script>
+function editEvent(e) {
+    document.getElementById('editEventForm').action = '/admin/events/edit/' + e.E_ID;
+    document.getElementById('edit_event_name').value = e.Event_Name;
+    document.getElementById('edit_date').value = e.Date;
+    document.getElementById('edit_time').value = e.Time || '';
+    document.getElementById('edit_location').value = e.Location || '';
+    document.getElementById('edit_type').value = e.Type || '';
+    document.getElementById('edit_price').value = e.Price || 0;
+    document.getElementById('edit_o_id').value = e.O_ID || '';
+    document.getElementById('edit_v_id').value = e.V_ID || '';
+    document.getElementById('edit_description').value = e.Description || '';
+}
+</script>
+{% endblock %}
