@@ -41,3 +41,6 @@ schema.sql
 seed_data.sql
 requirements.txt
 README.md
+
+
+the local host server :  http://127.0.0.1:5000
